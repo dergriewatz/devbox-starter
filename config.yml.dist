@@ -6,7 +6,7 @@ box:
     guest: /opt/share
     nfs:   true  # set to false on windows host
 
-hostname: symfony.box
+hostname: symfony.foo
 playbook: site.yml
 
 app:

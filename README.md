@@ -19,4 +19,4 @@ vagrant up
 
 ## Maintainer
 
-Lukas Sadzik (lukas.sadzik@sensiolabs.com)
+Lukas Sadzik (lukas.sadzik@sensiolabs.de)
