@@ -83,8 +83,6 @@
         path: /usr/local/bin/composer
       register: composer_state
 
-    - debug: var=composer_state
-
     - block:
       - name: get composer signature
         uri:
