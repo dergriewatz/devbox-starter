@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'yaml'
 settings = YAML.load_file 'config.yml'
 
 Vagrant.configure("2") do |config|
