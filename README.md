@@ -13,9 +13,11 @@ vagrant up
 ## Whats included:
 
 - Ubuntu 16.04 (Xenial Xerus)
-- PHP 7 with xdebug
+- PHP 7
 - Apache2 as server
+- MySQL (user: `dev`, password: `dev`)
 - Provisioning via Ansible
+- xdebug script for debugging on command line (preconfigured for PhpStorm)
 
 ## Maintainer
 

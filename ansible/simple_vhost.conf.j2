@@ -1,11 +1,9 @@
 <VirtualHost *:80>
-    ServerName {{ hostname }}
-    ServerAlias www.{{ hostname }}
     DocumentRoot {{ document_root }}
 
     RewriteEngine on
     RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ %{DOCUMENT_ROOT}/{{ app.front_controller }} [QSA,L]
+    RewriteRule ^(.*)$ %{DOCUMENT_ROOT}/app_dev.php [QSA,L]
 
     <Directory {{ document_root }}>
         Options Indexes FollowSymLinks MultiViews

@@ -1,11 +1,20 @@
 ---
 - hosts: all
-  vars_files:
-    - "../config.yml"
-  tasks:
-    - set_fact:
-        document_root: "{{ box.share.guest }}/{{app.web_dir}}"
+  vars:
+    document_root: "/srv/share/symfony/web" 
+    mysql_user:     'dev'
+    mysql_password: 'dev'
+    php_ini:
+      'date.timezone':              "Europe/Berlin"
+      'xdebug.idekey':              "PHPSTORM"
+      'xdebug.max_nesting_level':   "256"
+      'xdebug.remote_connect_back': "1"
+      'xdebug.remote_enable ':      "1"
+      'xdebug.remote_port ':        "9000"
+      'xdebug.scream':              "0"
+      'xdebug.show_local_vars':     "1"
 
+  tasks:
     - name: add php ppa
       become: true
       apt_repository: 
@@ -22,13 +31,17 @@
         - apache2
         - curl
         - git
+        - mysql-server
         - php
         - php-cli
         - php-curl
         - php-gd
         - php-intl
+        - php-mysql
         - php-xdebug
         - php-xml
+        - php-zip
+        - python-mysqldb
 
     - name: enable apache rewrite module
       become: true
@@ -38,45 +51,40 @@
       notify:
         - restart apache
 
-    - name: remove apache default config
-      file: 
-        path: "{{ item }}"
-        state: absent
-      become: true
-      with_items:
-        - "/etc/apache2/sites-enabled/000-default.conf"
-        - "/etc/apache2/sites-enabled/default"
-      notify:
-        - restart apache
-
     - name: install vhost template
       become: true
       template: 
         src: simple_vhost.conf.j2 
-        dest: /etc/apache2/sites-enabled/{{ hostname }}.conf
+        dest: /etc/apache2/sites-enabled/000-default.conf
       notify:
         - restart apache
 
-    - name: php.ini settings
+    - name: php.ini settings for apache
       become: true
       lineinfile: 
-        dest: "{{ item[1] }}"
-        line: "{{ item[0] }}"
-      with_nested:
-        - 
-          - "date.timezone={{ app.php_timezone }}"
-          - "xdebug.max_nesting_level=256"
-          - "xdebug.remote_enable = 1"
-          - "xdebug.remote_connect_back=1"
-          - "xdebug.remote_port = 9000"
-          - "xdebug.scream=0"
-          - "xdebug.show_local_vars=1"
-          - "xdebug.idekey=PHPSTORM"
-        - 
-          - '/etc/php/7.0/apache2/php.ini'
-          - '/etc/php/7.0/cli/php.ini'
+        dest: '/etc/php/7.0/apache2/php.ini'
+        line: "{{ item.key }}='{{ item.value }}'"
+        regexp: "^{{ item.key }}.*$"
+      with_dict: "{{ php_ini }}"
       notify:
         - restart apache
+
+    - name: php.ini settings for cli 
+      become: true
+      lineinfile: 
+        dest: '/etc/php/7.0/cli/php.ini'
+        line: "{{ item.key }}='{{ item.value }}'"
+        regexp: "^{{ item.key }}.*$"
+      with_dict: "{{ php_ini }}"
+      notify:
+        - restart apache
+
+    - name: add mysql user
+      become: true
+      mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        priv: "*.*:ALL"
 
     - name: check if composer is installed
       stat: 
@@ -116,10 +124,16 @@
         state: started
         enabled: true
 
+    - name: copy xdebug script
+      become: true
+      copy:
+        src: xdebug
+        dest: /usr/local/bin/xdebug
+        mode: 0755
+
   handlers:
     - name: restart apache
       become: true
       service: 
         name: apache2 
         state: restarted
-

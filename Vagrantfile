@@ -1,21 +1,15 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-require 'yaml'
-settings = YAML.load_file 'config.yml'
-
 Vagrant.configure("2") do |config|
-    config.vm.box       = settings['box']['name']
-    config.vm.host_name = settings['hostname']
+    config.vm.box       = "ubuntu/xenial64"
+    config.vm.host_name = "dev.foo"
 
-    config.vm.network "private_network", ip: settings['box']['ip']
-    config.vm.synced_folder settings['box']['share']['host'], 
-        settings['box']['share']['guest'], 
-        id: "vagrant-share", 
-        :nfs => settings['box']['share']['nfs']
+    config.vm.network "private_network", ip: "192.168.56.102"
+    config.vm.synced_folder '.', '/srv/share', id: "vagrant-share", :nfs => true
 
     config.vm.provision "ansible_local" do |ansible|
-        ansible.provisioning_path = settings['box']['share']['guest'] + "/ansible"
-        ansible.playbook          = settings['playbook']
+        ansible.provisioning_path = "/srv/share/ansible"
+        ansible.playbook          = "dev.yml"
     end
 end
