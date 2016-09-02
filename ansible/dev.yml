@@ -9,8 +9,8 @@
       'xdebug.idekey':              "PHPSTORM"
       'xdebug.max_nesting_level':   "256"
       'xdebug.remote_connect_back': "1"
-      'xdebug.remote_enable ':      "1"
-      'xdebug.remote_port ':        "9000"
+      'xdebug.remote_enable':       "1"
+      'xdebug.remote_port':         "9000"
       'xdebug.scream':              "0"
       'xdebug.show_local_vars':     "1"
 
@@ -76,8 +76,6 @@
         line: "{{ item.key }}='{{ item.value }}'"
         regexp: "^{{ item.key }}.*$"
       with_dict: "{{ php_ini }}"
-      notify:
-        - restart apache
 
     - name: add mysql user
       become: true
